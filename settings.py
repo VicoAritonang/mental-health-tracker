@@ -1,1 +1,0 @@
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "vico-winner31-mentalhealthtracker.pbp.cs.ui.ac.id"]
