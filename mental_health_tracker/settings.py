@@ -37,7 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'main',
 ]
+
+...
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "vico-winner31-mentalhealthtracker.pbp.cs.ui.ac.id"]
+...
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
