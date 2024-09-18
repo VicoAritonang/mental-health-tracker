@@ -7,7 +7,22 @@ from django.core import serializers
 from django.shortcuts import render, redirect   
 from main.forms import MoodEntryForm
 from main.models import MoodEntry
+import datetime
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
+@login_required(login_url='/login')
+def show_main(request):
+    mood_entries = MoodEntry.objects.filter(user=request.user)
+    context = {
+        'npm'   : '2306219083',
+        'name': request.user.username,
+        'class' : 'PBP B',
+        'mood_entries' : mood_entries,
+        'last_login': request.COOKIES['last_login'],
+    }
+
+    return render(request, "main.html", context)
 
 def register(request):
     form = UserCreationForm()
@@ -28,8 +43,9 @@ def login_user(request):
       if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('main:show_main')
-
+            response = HttpResponseRedirect(reverse("main:show_main"))
+            response.set_cookie('last_login', str(datetime.datetime.now()))
+            return response
    else:
       form = AuthenticationForm(request)
    context = {'form': form}
@@ -37,29 +53,22 @@ def login_user(request):
 
 def logout_user(request):
     logout(request)
-    return redirect('main:login')
-
-@login_required(login_url='/login')
-def show_main(request):
-    mood_entries = MoodEntry.objects.all()
-    context = {
-        'npm'   : '2306219083',
-        'name'  : 'Vico Winner Sebastian Aritonang',
-        'class' : 'PBP B',
-        'mood_entries' : mood_entries
-    }
-
-    return render(request, "main.html", context)
+    response = HttpResponseRedirect(reverse('main:login'))
+    response.delete_cookie('last_login')
+    return response
 
 def create_mood_entry(request):
     form = MoodEntryForm(request.POST or None)
 
     if form.is_valid() and request.method == "POST":
-        form.save()
+        mood_entry = form.save(commit=False)
+        mood_entry.user = request.user
+        mood_entry.save()
         return redirect('main:show_main')
 
     context = {'form': form}
     return render(request, "create_mood_entry.html", context)
+
 
 
 def show_xml(request):
